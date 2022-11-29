@@ -5,9 +5,11 @@ const templates = Handlebars.compile(
 class BooksList {
   constructor() {
     const thisProduct = this;
+    console.log(thisProduct);
     const favoriteBooks = [];
     const filters = [];
-    console.log('filters', filters);
+    console.log('filters', thisProduct.filters);
+    thisProduct.getElements();
     thisProduct.render();
     thisProduct.initActions();
     thisProduct.getElements();
@@ -83,7 +85,7 @@ class BooksList {
     const thisProduct = this;
     for (const book in dataSource.books) {
       let shouldBeHidden = false;
-      for (const filter of filters) {
+      for (const filter of thisProduct.filters) {
         if (dataSource.books[book].details[filter]) {
           // console.log(
           //   'book.details[filter]',
@@ -107,7 +109,7 @@ class BooksList {
   // zwraca najbliższego przodka, który ma pozycję inną niż statyczna. czyli np. relative??///
 
   removeFromArray(arr, element) {
-    const thisProduct = this;
+    //const thisProduct = this;
     if (arr.includes(element)) {
       const index = arr.indexOf(element);
       arr.splice(index, 1);
@@ -115,18 +117,22 @@ class BooksList {
   }
   determineRatingBgc(rating) {
     const thisProduct = this;
-    let backGround = '';
+    thisProduct.backGround = '';
     if (rating < 6) {
-      backGround = 'linear-gradient(to bottom,  #fefcea 0%, #f1da36 100%)';
+      thisProduct.backGround =
+        'linear-gradient(to bottom,  #fefcea 0%, #f1da36 100%)';
     } else if (rating > 6 && rating <= 8) {
-      backGround = 'linear-gradient(to bottom, #b4df5b 0%,#b4df5b 100%)';
+      thisProduct.backGround =
+        'linear-gradient(to bottom, #b4df5b 0%,#b4df5b 100%)';
     } else if (rating > 8 && rating <= 9) {
-      backGround = 'linear-gradient(to bottom, #299a0b 0%, #299a0b 100%)';
+      thisProduct.backGround =
+        'linear-gradient(to bottom, #299a0b 0%, #299a0b 100%)';
     } else {
-      backGround = 'linear-gradient(to bottom, #ff0084 0%,#ff0084 100%)';
+      thisProduct.backGround =
+        'linear-gradient(to bottom, #ff0084 0%,#ff0084 100%)';
     }
 
-    return backGround;
+    return thisProduct.backGround;
   }
 }
 

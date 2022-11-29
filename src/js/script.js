@@ -6,16 +6,15 @@ class BooksList {
   constructor() {
     const thisProduct = this;
     console.log(thisProduct);
-    const favoriteBooks = [];
-    const filters = [];
+
     console.log('filters', thisProduct.filters);
     thisProduct.getElements();
     thisProduct.render();
     thisProduct.initActions();
     thisProduct.getElements();
     thisProduct.determineRatingBgc();
-    thisProduct.removeFromArray();
-    thisProduct.filterBooks();
+    //thisProduct.removeFromArray();
+    //thisProduct.filterBooks();
   }
   getElements() {
     const thisProduct = this;
@@ -44,7 +43,7 @@ class BooksList {
   initActions() {
     const thisProduct = this;
     //console.log('fBooks', favoriteBooks);
-
+    thisProduct.favoriteBooks = [];
     thisProduct.booksList.addEventListener('dblclick', function (event) {
       event.preventDefault();
 
@@ -63,6 +62,7 @@ class BooksList {
 
     thisProduct.filtersDom.addEventListener('click', function (event) {
       //event.preventDefault();
+      thisProduct.filters = [];
       const tagName = document.querySelector('.filters input');
       console.log('tagName', tagName);
       console.log('input type', event.target.type);
@@ -137,7 +137,7 @@ class BooksList {
 }
 
 const app = new BooksList();
-app();
+//app();
 
 //1 wersja init action//
 // function initActions() {

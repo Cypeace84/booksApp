@@ -1,116 +1,137 @@
-let booksList = document.querySelector('.books-list');
-
 const templates = Handlebars.compile(
   document.querySelector('#template-book').innerHTML
 );
-const filtersDom = document.querySelector('.filters');
 
-function render() {
-  for (let book in dataSource.books) {
-    let bookElem = dataSource.books[book];
-
-    let countRatingWidth = bookElem.rating * 10;
-    let ratingWidth = countRatingWidth.toString();
-    bookElem.ratingWidth = ratingWidth;
-    const ratingBgc = determineRatingBgc(bookElem.rating);
-    bookElem.ratingBgc = ratingBgc;
-    const generatedHTML = templates(bookElem, ratingBgc);
-    bookElem = utils.createDOMFromHTML(generatedHTML);
-
-    booksList.appendChild(bookElem);
+class BooksList {
+  constructor() {
+    const thisProduct = this;
+    const favoriteBooks = [];
+    const filters = [];
+    console.log('filters', filters);
+    thisProduct.render();
+    thisProduct.initActions();
+    thisProduct.getElements();
+    thisProduct.determineRatingBgc();
+    thisProduct.removeFromArray();
+    thisProduct.filterBooks();
   }
-}
-let favoriteBooks = [];
-const filters = [];
-console.log('filters', filters);
+  getElements() {
+    const thisProduct = this;
+    thisProduct.booksList = document.querySelector('.books-list');
+    thisProduct.filtersDom = document.querySelector('.filters');
+  }
 
-function initActions() {
-  console.log('fBooks', favoriteBooks);
+  render() {
+    const thisProduct = this;
+    //this.data = dataSource.books;
+    for (let book in dataSource.books) {
+      let bookElem = dataSource.books[book];
 
-  booksList.addEventListener('dblclick', function (event) {
-    event.preventDefault();
+      let countRatingWidth = bookElem.rating * 10;
+      let ratingWidth = countRatingWidth.toString();
+      bookElem.ratingWidth = ratingWidth;
+      const ratingBgc = thisProduct.determineRatingBgc(bookElem.rating);
+      bookElem.ratingBgc = ratingBgc;
+      const generatedHTML = templates(bookElem);
+      thisProduct.bookElem = utils.createDOMFromHTML(generatedHTML);
 
-    if (event.target.offsetParent.classList.contains('book__image')) {
-      //czemu nie .book__image??
-      let id = event.target.offsetParent.getAttribute('data-id');
-      if (event.target.offsetParent.classList.contains('favorite')) {
-        event.target.offsetParent.classList.remove('favorite');
-        removeFromArray(favoriteBooks, id);
+      thisProduct.booksList.appendChild(thisProduct.bookElem);
+    }
+  }
+
+  initActions() {
+    const thisProduct = this;
+    //console.log('fBooks', favoriteBooks);
+
+    thisProduct.booksList.addEventListener('dblclick', function (event) {
+      event.preventDefault();
+
+      if (event.target.offsetParent.classList.contains('book__image')) {
+        //czemu nie .book__image??
+        let id = event.target.offsetParent.getAttribute('data-id');
+        if (event.target.offsetParent.classList.contains('favorite')) {
+          event.target.offsetParent.classList.remove('favorite');
+          thisProduct.removeFromArray(thisProduct.favoriteBooks, id);
+        } else {
+          event.target.offsetParent.classList.add('favorite');
+          thisProduct.favoriteBooks.push(id);
+        }
+      }
+    });
+
+    thisProduct.filtersDom.addEventListener('click', function (event) {
+      //event.preventDefault();
+      const tagName = document.querySelector('.filters input');
+      console.log('tagName', tagName);
+      console.log('input type', event.target.type);
+      if (
+        event.target.tagName == 'INPUT' &&
+        event.target.type == 'checkbox' &&
+        event.target.name == 'filter'
+      )
+        if (event.target.checked) {
+          thisProduct.filters.push(event.target.value);
+          console.log('value:', event.target.value);
+        } else {
+          thisProduct.removeFromArray(thisProduct.filters, event.target.value);
+        }
+      thisProduct.filterBooks();
+    });
+  }
+
+  filterBooks() {
+    const thisProduct = this;
+    for (const book in dataSource.books) {
+      let shouldBeHidden = false;
+      for (const filter of filters) {
+        if (dataSource.books[book].details[filter]) {
+          // console.log(
+          //   'book.details[filter]',
+          //   dataSource.books[book].details[filter]
+          // );
+          shouldBeHidden = true;
+          break;
+        }
+      }
+      const bookId = dataSource.books[book].id;
+      const bookById = document.querySelector('[data-id="' + bookId + '"]');
+      if (shouldBeHidden) {
+        bookById.classList.add('hidden');
       } else {
-        event.target.offsetParent.classList.add('favorite');
-        favoriteBooks.push(id);
+        bookById.classList.remove('hidden');
       }
     }
-  });
+  }
 
-  filtersDom.addEventListener('click', function (event) {
-    //event.preventDefault();
-    const tagName = document.querySelector('.filters input');
-    console.log('tagName', tagName);
-    console.log('input type', event.target.type);
-    if (
-      event.target.tagName == 'INPUT' &&
-      event.target.type == 'checkbox' &&
-      event.target.name == 'filter'
-    )
-      if (event.target.checked) {
-        filters.push(event.target.value);
-        console.log('value:', event.target.value);
-      } else {
-        removeFromArray(filters, event.target.value);
-      }
-    filterBooks();
-  });
-}
+  //!!!!!!!!!!!!!!!!!!!!!!!offsetParent jak działa???????!!!!!!!!!!!!!!!!!!!!!//
+  // zwraca najbliższego przodka, który ma pozycję inną niż statyczna. czyli np. relative??///
 
-function filterBooks() {
-  for (const book in dataSource.books) {
-    let shouldBeHidden = false;
-    for (const filter of filters) {
-      if (dataSource.books[book].details[filter]) {
-        // console.log(
-        //   'book.details[filter]',
-        //   dataSource.books[book].details[filter]
-        // );
-        shouldBeHidden = true;
-        break;
-      }
+  removeFromArray(arr, element) {
+    const thisProduct = this;
+    if (arr.includes(element)) {
+      const index = arr.indexOf(element);
+      arr.splice(index, 1);
     }
-    const bookId = dataSource.books[book].id;
-    const bookById = document.querySelector('[data-id="' + bookId + '"]');
-    if (shouldBeHidden) {
-      bookById.classList.add('hidden');
+  }
+  determineRatingBgc(rating) {
+    const thisProduct = this;
+    let backGround = '';
+    if (rating < 6) {
+      backGround = 'linear-gradient(to bottom,  #fefcea 0%, #f1da36 100%)';
+    } else if (rating > 6 && rating <= 8) {
+      backGround = 'linear-gradient(to bottom, #b4df5b 0%,#b4df5b 100%)';
+    } else if (rating > 8 && rating <= 9) {
+      backGround = 'linear-gradient(to bottom, #299a0b 0%, #299a0b 100%)';
     } else {
-      bookById.classList.remove('hidden');
+      backGround = 'linear-gradient(to bottom, #ff0084 0%,#ff0084 100%)';
     }
+
+    return backGround;
   }
 }
 
-//!!!!!!!!!!!!!!!!!!!!!!!offsetParent jak działa???????!!!!!!!!!!!!!!!!!!!!!//
-// zwraca najbliższego przodka, który ma pozycję inną niż statyczna. czyli np. relative??///
-
-function removeFromArray(arr, element) {
-  if (arr.includes(element)) {
-    const index = arr.indexOf(element);
-    arr.splice(index, 1);
-  }
-}
-function determineRatingBgc(rating) {
-  let backGround = '';
-  if (rating < 6) {
-    backGround = 'linear-gradient(to bottom,  #fefcea 0%, #f1da36 100%)';
-  } else if (rating > 6 && rating <= 8) {
-    backGround = 'linear-gradient(to bottom, #b4df5b 0%,#b4df5b 100%)';
-  } else if (rating > 8 && rating <= 9) {
-    backGround = 'linear-gradient(to bottom, #299a0b 0%, #299a0b 100%)';
-  } else {
-    backGround = 'linear-gradient(to bottom, #ff0084 0%,#ff0084 100%)';
-  }
-
-  return backGround;
-}
-render();
-initActions();
+const app = new BooksList();
+app();
 
 //1 wersja init action//
 // function initActions() {

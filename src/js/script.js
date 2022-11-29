@@ -137,6 +137,7 @@ class BooksList {
 }
 
 const app = new BooksList();
+
 //app();
 
 //1 wersja init action//

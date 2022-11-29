@@ -1,5 +1,5 @@
 let booksList = document.querySelector('.books-list');
-//let book__image = document.querySelectorAll('.book__image');
+
 const templates = Handlebars.compile(
   document.querySelector('#template-book').innerHTML
 );
@@ -8,8 +8,14 @@ const filtersDom = document.querySelector('.filters');
 function render() {
   for (let book in dataSource.books) {
     let bookElem = dataSource.books[book];
-    const generateHTML = templates(bookElem);
-    bookElem = utils.createDOMFromHTML(generateHTML);
+
+    let countRatingWidth = bookElem.rating * 10;
+    let ratingWidth = countRatingWidth.toString();
+    bookElem.ratingWidth = ratingWidth;
+    const ratingBgc = determineRatingBgc(bookElem.rating);
+    bookElem.ratingBgc = ratingBgc;
+    const generatedHTML = templates(bookElem, ratingBgc);
+    bookElem = utils.createDOMFromHTML(generatedHTML);
 
     booksList.appendChild(bookElem);
   }
@@ -58,28 +64,24 @@ function initActions() {
 }
 
 function filterBooks() {
-  for (let book in dataSource.books) {
-    let shouldByHidden = false;
-    for (let filter of filters) {
-      if (!dataSource.books[book].details[filter]) {
-        console.log(
-          'book.details[filter]',
-          dataSource.books[book].details[filter]
-        );
-        shouldByHidden = true;
-
+  for (const book in dataSource.books) {
+    let shouldBeHidden = false;
+    for (const filter of filters) {
+      if (dataSource.books[book].details[filter]) {
+        // console.log(
+        //   'book.details[filter]',
+        //   dataSource.books[book].details[filter]
+        // );
+        shouldBeHidden = true;
         break;
-      } /*(shouldByHidden != true) */
-      if ((shouldByHidden = true)) {
-        let bookId = dataSource.books[book].id;
-        let bookById = document.querySelector('[data-id = "' + bookId + '"]');
-
-        bookById.classList.add('hidden');
-      } else {
-        let bookId = dataSource.books[book].id;
-        let bookById = document.querySelector('[data-id = "' + bookId + '"]');
-        bookById.classList.remove('hidden');
       }
+    }
+    const bookId = dataSource.books[book].id;
+    const bookById = document.querySelector('[data-id="' + bookId + '"]');
+    if (shouldBeHidden) {
+      bookById.classList.add('hidden');
+    } else {
+      bookById.classList.remove('hidden');
     }
   }
 }
@@ -92,6 +94,20 @@ function removeFromArray(arr, element) {
     const index = arr.indexOf(element);
     arr.splice(index, 1);
   }
+}
+function determineRatingBgc(rating) {
+  let backGround = '';
+  if (rating < 6) {
+    backGround = 'linear-gradient(to bottom,  #fefcea 0%, #f1da36 100%)';
+  } else if (rating > 6 && rating <= 8) {
+    backGround = 'linear-gradient(to bottom, #b4df5b 0%,#b4df5b 100%)';
+  } else if (rating > 8 && rating <= 9) {
+    backGround = 'linear-gradient(to bottom, #299a0b 0%, #299a0b 100%)';
+  } else {
+    backGround = 'linear-gradient(to bottom, #ff0084 0%,#ff0084 100%)';
+  }
+
+  return backGround;
 }
 render();
 initActions();

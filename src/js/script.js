@@ -1,68 +1,60 @@
+// eslint-disable-next-line no-unused-vars
 const templates = Handlebars.compile(
   document.querySelector('#template-book').innerHTML
 );
 
 class BooksList {
   constructor() {
-    const thisProduct = this;
-    console.log(thisProduct);
-
-    console.log('filters', thisProduct.filters);
-    thisProduct.getElements();
-    thisProduct.render();
-    thisProduct.initActions();
-    thisProduct.getElements();
-    thisProduct.determineRatingBgc();
-    //thisProduct.removeFromArray();
-    //thisProduct.filterBooks();
+    const thisBooksList = this;
+    thisBooksList.filters = [];
+    console.log(thisBooksList);
+    thisBooksList.favoriteBooks = [];
+    thisBooksList.getElements();
+    thisBooksList.render();
+    thisBooksList.initActions();
   }
   getElements() {
-    const thisProduct = this;
-    thisProduct.booksList = document.querySelector('.books-list');
-    thisProduct.filtersDom = document.querySelector('.filters');
+    const thisBooksList = this;
+    thisBooksList.booksList = document.querySelector('.books-list');
+    thisBooksList.filtersDom = document.querySelector('.filters');
   }
 
   render() {
-    const thisProduct = this;
-    //this.data = dataSource.books;
+    const thisBooksList = this;
     for (let book in dataSource.books) {
       let bookElem = dataSource.books[book];
 
       let countRatingWidth = bookElem.rating * 10;
       let ratingWidth = countRatingWidth.toString();
       bookElem.ratingWidth = ratingWidth;
-      const ratingBgc = thisProduct.determineRatingBgc(bookElem.rating);
+      const ratingBgc = thisBooksList.determineRatingBgc(bookElem.rating);
       bookElem.ratingBgc = ratingBgc;
       const generatedHTML = templates(bookElem);
-      thisProduct.bookElem = utils.createDOMFromHTML(generatedHTML);
+      thisBooksList.bookElem = utils.createDOMFromHTML(generatedHTML);
 
-      thisProduct.booksList.appendChild(thisProduct.bookElem);
+      thisBooksList.booksList.appendChild(thisBooksList.bookElem);
     }
   }
 
   initActions() {
-    const thisProduct = this;
-    //console.log('fBooks', favoriteBooks);
-    thisProduct.favoriteBooks = [];
-    thisProduct.booksList.addEventListener('dblclick', function (event) {
-      event.preventDefault();
+    const thisBooksList = this;
 
+    thisBooksList.booksList.addEventListener('dblclick', function (event) {
+      event.preventDefault();
       if (event.target.offsetParent.classList.contains('book__image')) {
         //czemu nie .book__image??
         let id = event.target.offsetParent.getAttribute('data-id');
         if (event.target.offsetParent.classList.contains('favorite')) {
           event.target.offsetParent.classList.remove('favorite');
-          thisProduct.removeFromArray(thisProduct.favoriteBooks, id);
+          thisBooksList.removeFromArray(thisBooksList.favoriteBooks, id);
         } else {
           event.target.offsetParent.classList.add('favorite');
-          thisProduct.favoriteBooks.push(id);
+          thisBooksList.favoriteBooks.push(id);
         }
       }
     });
 
-    thisProduct.filtersDom.addEventListener('click', function (event) {
-      //event.preventDefault();
-      thisProduct.filters = [];
+    thisBooksList.filtersDom.addEventListener('click', function (event) {
       const tagName = document.querySelector('.filters input');
       console.log('tagName', tagName);
       console.log('input type', event.target.type);
@@ -72,25 +64,24 @@ class BooksList {
         event.target.name == 'filter'
       )
         if (event.target.checked) {
-          thisProduct.filters.push(event.target.value);
+          thisBooksList.filters.push(event.target.value);
           console.log('value:', event.target.value);
         } else {
-          thisProduct.removeFromArray(thisProduct.filters, event.target.value);
+          thisBooksList.removeFromArray(
+            thisBooksList.filters,
+            event.target.value
+          );
         }
-      thisProduct.filterBooks();
+      thisBooksList.filterBooks();
     });
   }
 
   filterBooks() {
-    const thisProduct = this;
+    const thisBooksList = this;
     for (const book in dataSource.books) {
       let shouldBeHidden = false;
-      for (const filter of thisProduct.filters) {
+      for (const filter of thisBooksList.filters) {
         if (dataSource.books[book].details[filter]) {
-          // console.log(
-          //   'book.details[filter]',
-          //   dataSource.books[book].details[filter]
-          // );
           shouldBeHidden = true;
           break;
         }
@@ -105,39 +96,34 @@ class BooksList {
     }
   }
 
-  //!!!!!!!!!!!!!!!!!!!!!!!offsetParent jak działa???????!!!!!!!!!!!!!!!!!!!!!//
-  // zwraca najbliższego przodka, który ma pozycję inną niż statyczna. czyli np. relative??///
-
   removeFromArray(arr, element) {
-    //const thisProduct = this;
     if (arr.includes(element)) {
       const index = arr.indexOf(element);
       arr.splice(index, 1);
     }
   }
   determineRatingBgc(rating) {
-    const thisProduct = this;
-    thisProduct.backGround = '';
+    const thisBooksList = this;
+    thisBooksList.backGround = '';
     if (rating < 6) {
-      thisProduct.backGround =
+      thisBooksList.backGround =
         'linear-gradient(to bottom,  #fefcea 0%, #f1da36 100%)';
     } else if (rating > 6 && rating <= 8) {
-      thisProduct.backGround =
+      thisBooksList.backGround =
         'linear-gradient(to bottom, #b4df5b 0%,#b4df5b 100%)';
     } else if (rating > 8 && rating <= 9) {
-      thisProduct.backGround =
+      thisBooksList.backGround =
         'linear-gradient(to bottom, #299a0b 0%, #299a0b 100%)';
     } else {
-      thisProduct.backGround =
+      thisBooksList.backGround =
         'linear-gradient(to bottom, #ff0084 0%,#ff0084 100%)';
     }
 
-    return thisProduct.backGround;
+    return thisBooksList.backGround;
   }
 }
 
 const app = new BooksList();
-
 //app();
 
 //1 wersja init action//

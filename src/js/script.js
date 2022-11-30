@@ -1,4 +1,3 @@
-// eslint-disable-next-line no-unused-vars
 const templates = Handlebars.compile(
   document.querySelector('#template-book').innerHTML
 );
@@ -122,7 +121,7 @@ class BooksList {
     return thisBooksList.backGround;
   }
 }
-
+// eslint-disable-next-line no-unused-vars
 const app = new BooksList();
 //app();
 
